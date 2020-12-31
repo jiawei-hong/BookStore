@@ -1,0 +1,69 @@
+{% extends 'tenlong/layout.html' %}
+
+{% block content %}
+    <div class="card-columns"></div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        let cardColumns = document.querySelector('.card-columns');
+        let id = '{{ special_id }}';
+        let page = 1;
+
+        window.addEventListener('scroll',() => {
+            let curHeight = document.documentElement.scrollHeight - window.innerHeight;
+            let maxHeight = document.documentElement.scrollTop;
+
+            if (curHeight === maxHeight){
+                getAndRenderBooks();
+            }
+        })
+
+        window.onload = () => {
+            getAndRenderBooks();
+        }
+
+        function getSpecialBooks(id, page){
+            return fetch(`/special/${id}/${page}`).then(res => res.json()).then(res => res);
+        }
+
+        function renderSpecialBooks(books){
+            books.forEach(book => {
+                let bookDiv = document.createElement('div');
+                let bookImg = document.createElement('img');
+                let bookBody = document.createElement('div');
+                let bookName = document.createElement('p');
+                let bookPrice = document.createElement('p');
+                let bookButton  =  document.createElement('a');
+
+                bookDiv.className = 'card text-center';
+                bookDiv.style.width = '18rem';
+                bookImg.className = 'card-img-top';
+                bookImg.src = book.img_link;
+                bookBody.className = 'card-body';
+                bookName.className = 'card-text';
+                bookName.innerText = book.name;
+                bookPrice.className = 'card-text';
+                bookPrice.innerText = book.price;
+                bookButton.className = 'btn btn-primary';
+                bookButton.innerText = '前往購買';
+                bookButton.href = book.link;
+
+                bookBody.append(bookName, bookPrice, bookButton);
+                bookDiv.append(bookImg, bookBody);
+                cardColumns.append(bookDiv);
+            });
+        }
+
+        async function getAndRenderBooks(){
+            let books = await getSpecialBooks(id, page);
+
+            if(books.length === 0)
+                alert('此出版社書籍已到最底。');
+
+            renderSpecialBooks(books);
+
+            page++;
+        }
+    </script>
+{% endblock %}
