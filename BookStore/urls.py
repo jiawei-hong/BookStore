@@ -15,7 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from tenlong import views as tl_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', tl_views.index),
+    path('keywordResult', tl_views.get_keyword),
+    path('special/<int:special_id>', tl_views.special),
+    path('special/<int:special_id>/<int:page>', tl_views.get_special_books),
+    path('publishers', tl_views.get_publisher),
+    path('publishers/<int:publisher_id>', tl_views.publisher),
+    path('publishers/<int:publisher_id>/<int:page>', tl_views.get_publisher_books),
 ]

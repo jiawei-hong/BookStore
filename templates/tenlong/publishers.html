@@ -1,0 +1,11 @@
+{% extends 'tenlong/layout.html' %}
+
+{% block title %}
+    出版社專區
+{% endblock %}
+
+{% block content %}
+    {% for publisher in publishers %}
+        <a class="btn btn-primary mt-2" target="_blank" href="{{ publisher.link }}">{{ publisher.name }}</a>
+    {% endfor %}
+{% endblock %}
