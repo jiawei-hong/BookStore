@@ -20,15 +20,60 @@ def special(request, special_id):
     })
 
 
-def publisher(request, publisher_id):
-    return render(request, 'tenlong/publisher_view.html', {
+def keyword(request):
+    return render(request, 'tenlong/keyword.html', {
         'navbar': get_navbar(),
-        'publisher_id': publisher_id
+        'keyword': request.POST['keyword']
     })
 
 
-def get_keyword(request):
-    return HttpResponse(request.POST['keyword'])
+def get_keyword_books(request, book_name, book_page):
+    req_text = requests.get(f'https://www.tenlong.com.tw/search', {
+        'keyword': book_name,
+        'page': book_page
+    }).text
+    books = []
+    book_soup = BeautifulSoup(req_text, 'html.parser').find('div', class_='search-result-list').find('ul').find_all(
+        'li', class_=lambda x: x != 'promo')
+
+    for book in book_soup:
+        try:
+            book_link = book.find('a', class_='cover').get('href')
+            book_img = book.find('a', class_='cover').find('img').get('src')
+            book_info = '/'.join([x.text for x in book.find('div', class_='book-data').find('ul', class_='item-info').find('li', class_='basic').find_all('span')])
+            book_status = '/'.join([x.text.strip() for x in book.find('div', class_='book-data').find('ul', class_='item-info').find('li', class_='pricing').find_all('span')])
+
+            books.append({
+                'link': f'https://www.tenlong.com.tw/{book_link}',
+                'img': book_img,
+                'info': book_info,
+                'status': book_status
+            })
+        except:
+            pass
+
+    return HttpResponse(json.dumps(books))
+
+
+def publisher(request, publisher_id):
+    return render(request, 'tenlong/books.html', {
+        'navbar': get_navbar(),
+        'publishers_id': publisher_id
+    })
+
+
+def publishers(request):
+    req_text = requests.get('https://www.tenlong.com.tw//publishers').text
+    publisher_soup = BeautifulSoup(req_text, 'html.parser').find('ul', class_='category-list--full').findAll('a')
+    publisher_data = [{
+        'name': item.text,
+        'link': item.get('href')
+    } for item in publisher_soup]
+
+    return render(request, 'tenlong/publishers.html', {
+        'navbar': get_navbar(),
+        'publishers': publisher_data
+    })
 
 
 def get_navbar():
@@ -52,62 +97,23 @@ def get_navbar():
     return sidebar_data
 
 
-def get_special_books(request, special_id, page):
-    req_text = requests.get(f'https://www.tenlong.com.tw/special/{special_id}', {
-        'page': page
+def get_books(request, book_species, book_id, book_page):
+    req_text = requests.get(f'https://www.tenlong.com.tw/{book_species}/{book_id}', {
+        'page': book_page
     }).text
-    special_soup = BeautifulSoup(req_text, 'html.parser').find('div', class_='list-wrapper').find('ul').findAll('li',
-                                                                                                                class_='single-book')
-    special_data = []
+    book_soup = BeautifulSoup(req_text, 'html.parser').find('div', class_='list-wrapper').find('ul').findAll('li',
+                                                                                                             class_='single-book')
+    book_data = []
 
-    for special_ele in special_soup:
-        special_title = special_ele.find('strong', class_='title')
-        special_price = list(
-            filter(lambda x: x != '', special_ele.find('div', class_='pricing').text.replace('\n', '').split(' ')))
-        special_data.append({
-            'name': special_title.find('a').text,
-            'img_link': special_ele.find('a', class_='cover').find('img').get('src'),
-            'price': special_price[1 if len(special_price) > 1 else 0],
-            'link': 'https://www.tenlong.com.tw' + special_title.find('a').get('href')
+    for book_ele in book_soup:
+        book_title = book_ele.find('strong', class_='title')
+        book_price = list(
+            filter(lambda x: x != '', book_ele.find('div', class_='pricing').text.strip().split(' ')))
+        book_data.append({
+            'name': book_title.find('a').text,
+            'img_link': book_ele.find('a', class_='cover').find('img').get('src'),
+            'price': book_price[1 if len(book_price) > 1 else 0],
+            'link': 'https://www.tenlong.com.tw' + book_title.find('a').get('href')
         })
 
-    return HttpResponse(json.dumps(special_data))
-
-
-def get_publisher(request):
-    req_text = requests.get('https://www.tenlong.com.tw//publishers').text
-    publisher_data = []
-    publisher_soup = BeautifulSoup(req_text, 'html.parser').find('ul', class_='category-list--full').findAll('a')
-
-    for publisher in publisher_soup:
-        publisher_data.append({
-            'name': publisher.text,
-            'link': publisher.get('href')
-        })
-
-    return render(request, 'tenlong/publishers.html', {
-        'navbar': get_navbar(),
-        'publishers': publisher_data
-    })
-
-
-def get_publisher_books(request, publisher_id, page):
-    req_text = requests.get(f'https://www.tenlong.com.tw/publishers/{publisher_id}', {
-        'page': page
-    }).text
-    publisher_soup = BeautifulSoup(req_text, 'html.parser').find('div', class_='list-wrapper').find('ul').findAll('li',
-                                                                                                                  class_='single-book')
-    publisher_data = []
-
-    for publisher_ele in publisher_soup:
-        publisher_title = publisher_ele.find('strong', class_='title')
-        publisher_price = list(
-            filter(lambda x: x != '', publisher_ele.find('div', class_='pricing').text.replace('\n', '').split(' ')))
-        publisher_data.append({
-            'name': publisher_title.find('a').text,
-            'img_link': publisher_ele.find('a', class_='cover').find('img').get('src'),
-            'price': publisher_price[1 if len(publisher_price) > 1 else 0],
-            'link': 'https://www.tenlong.com.tw' + publisher_title.find('a').get('href')
-        })
-
-    return HttpResponse(json.dumps(publisher_data))
+    return HttpResponse(json.dumps(book_data))

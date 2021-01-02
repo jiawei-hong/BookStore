@@ -7,8 +7,12 @@
 {% block script %}
     <script>
         let cardColumns = document.querySelector('.card-columns');
-        let id = '{{ special_id }}';
         let page = 1;
+        let booksMode = ['special', 'publishers', 'keyword'];
+        let getBooksMode = location.href.split('/').filter(x => x !== '')[2];
+        let hasBooksMode = booksMode.indexOf(getBooksMode) !== -1;
+        let id = null;
+        let isMaxLow = false;
 
         window.addEventListener('scroll',() => {
             let curHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -20,11 +24,23 @@
         })
 
         window.onload = () => {
+            switch (getBooksMode) {
+                case 'special':
+                    id = '{{ special_id }}'
+                    break;
+                case 'publishers':
+                    id = '{{ publishers_id }}'
+                    break;
+                default:
+                    id = '{{ keyword_id }}'
+            }
+
             getAndRenderBooks();
         }
 
         function getSpecialBooks(id, page){
-            return fetch(`/special/${id}/${page}`).then(res => res.json()).then(res => res);
+            if(hasBooksMode && !isMaxLow)
+                return fetch(`/book/${getBooksMode}/${id}/${page}`).then(res => res.json()).then(res => res);
         }
 
         function renderSpecialBooks(books){
@@ -58,8 +74,11 @@
         async function getAndRenderBooks(){
             let books = await getSpecialBooks(id, page);
 
-            if(books.length === 0)
+            if(books === undefined || books.length === 0) {
+                isMaxLow = !isMaxLow
                 alert('此出版社書籍已到最底。');
+                return;
+            }
 
             renderSpecialBooks(books);
 

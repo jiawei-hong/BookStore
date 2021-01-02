@@ -1,5 +1,9 @@
 {% extends 'tenlong/layout.html' %}
 
+{% block title %}
+    搜尋書籍結果
+{% endblock %}
+
 {% block content %}
     <div class="card-columns"></div>
 {% endblock %}
@@ -7,8 +11,9 @@
 {% block script %}
     <script>
         let cardColumns = document.querySelector('.card-columns');
-        let id = '{{ publisher_id }}';
         let page = 1;
+        let keyword = '{{ keyword }}';
+        let isMaxLow = false;
 
         window.addEventListener('scroll',() => {
             let curHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -23,45 +28,49 @@
             getAndRenderBooks();
         }
 
-        function getPublisherBooks(id, page){
-            return fetch(`/publishers/${id}/${page}`).then(res => res.json()).then(res => res);
+        function getKeywordBooks(keyword, page){
+            if(!isMaxLow)
+                return fetch(`/keywordBooks/${keyword}/${page}`).then(res => res.json()).then(res => res);
         }
 
-        function renderPublisherBooks(books){
+        function renderSpecialBooks(books){
             books.forEach(book => {
                 let bookDiv = document.createElement('div');
                 let bookImg = document.createElement('img');
                 let bookBody = document.createElement('div');
-                let bookName = document.createElement('p');
-                let bookPrice = document.createElement('p');
+                let bookInfo = document.createElement('p');
+                let bookStatus = document.createElement('p');
                 let bookButton  =  document.createElement('a');
 
                 bookDiv.className = 'card text-center';
                 bookDiv.style.width = '18rem';
                 bookImg.className = 'card-img-top';
-                bookImg.src = book.img_link;
+                bookImg.src = book.img;
                 bookBody.className = 'card-body';
-                bookName.className = 'card-text';
-                bookName.innerText = book.name;
-                bookPrice.className = 'card-text';
-                bookPrice.innerText = book.price;
+                bookInfo.className = 'card-text';
+                bookInfo.innerText = book.info;
+                bookStatus.className = 'card-text';
+                bookStatus.innerText = book.status;
                 bookButton.className = 'btn btn-primary';
                 bookButton.innerText = '前往購買';
                 bookButton.href = book.link;
 
-                bookBody.append(bookName, bookPrice, bookButton);
+                bookBody.append(bookInfo, bookStatus, bookButton);
                 bookDiv.append(bookImg, bookBody);
                 cardColumns.append(bookDiv);
             });
         }
 
         async function getAndRenderBooks(){
-            let books = await getPublisherBooks(id, page);
+            let books = await getKeywordBooks(keyword, page);
 
-            if(books.length === 0)
-                alert('此出版社書籍已到最底。');
+            if(books === undefined || books.length === 0) {
+                isMaxLow = !isMaxLow
+                alert('此書籍已到最底。');
+                return;
+            }
 
-            renderPublisherBooks(books);
+            renderSpecialBooks(books);
 
             page++;
         }

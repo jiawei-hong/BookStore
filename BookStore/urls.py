@@ -20,10 +20,10 @@ from tenlong import views as tl_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', tl_views.index),
-    path('keywordResult', tl_views.get_keyword),
+    path('keywordResult', tl_views.keyword),
+    path('keywordBooks/<str:book_name>/<int:book_page>', tl_views.get_keyword_books),
     path('special/<int:special_id>', tl_views.special),
-    path('special/<int:special_id>/<int:page>', tl_views.get_special_books),
-    path('publishers', tl_views.get_publisher),
+    path('publishers', tl_views.publishers),
     path('publishers/<int:publisher_id>', tl_views.publisher),
-    path('publishers/<int:publisher_id>/<int:page>', tl_views.get_publisher_books),
+    path('book/<str:book_species>/<int:book_id>/<int:book_page>', tl_views.get_books)
 ]
