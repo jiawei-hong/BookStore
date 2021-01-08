@@ -1,4 +1,4 @@
-{% extends 'tenlong/layout.html' %}
+{% extends 'layout.html' %}
 
 {% block content %}
     <div class="card-columns"></div>
@@ -13,6 +13,9 @@
         let hasBooksMode = booksMode.indexOf(getBooksMode) !== -1;
         let id = null;
         let isMaxLow = false;
+        let userProducts = null;
+        let userId = '{{ request.user.id }}';
+        let isLogin = '{{ request.user.is_authenticated }}'.toLowerCase() === 'true';
 
         window.addEventListener('scroll',() => {
             let curHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -23,7 +26,7 @@
             }
         })
 
-        window.onload = () => {
+        window.onload = async () => {
             switch (getBooksMode) {
                 case 'special':
                     id = '{{ special_id }}'
@@ -35,6 +38,7 @@
                     id = '{{ keyword_id }}'
             }
 
+            userProducts = await getUserProducts();
             getAndRenderBooks();
         }
 
@@ -51,6 +55,7 @@
                 let bookName = document.createElement('p');
                 let bookPrice = document.createElement('p');
                 let bookButton  =  document.createElement('a');
+                let bookmarkButton = document.createElement('button');
 
                 bookDiv.className = 'card text-center';
                 bookDiv.style.width = '18rem';
@@ -65,7 +70,25 @@
                 bookButton.innerText = '前往購買';
                 bookButton.href = book.link;
 
-                bookBody.append(bookName, bookPrice, bookButton);
+                if(userProducts.indexOf(parseInt(book.product_id)) === -1){
+                    bookmarkButton.className = 'btn btn-primary bi bi-star ml-1';
+                }else{
+                    bookmarkButton.className = 'btn btn-primary bi bi-star-fill ml-1';
+                }
+
+                bookmarkButton.addEventListener('click',async () => {
+                    let product_id = book.product_id
+
+                    if(userProducts.indexOf(parseInt(book.product_id)) === -1){
+                        await fetch(`/user/add/${product_id}`).then(res => res.text()).then(res => res);
+                    }else{
+                        await fetch(`/user/delete/${product_id}`).then(res => res.text()).then(res => res);
+                    }
+
+                    location.reload();
+                });
+
+                bookBody.append(bookName, bookPrice, bookButton, bookmarkButton);
                 bookDiv.append(bookImg, bookBody);
                 cardColumns.append(bookDiv);
             });
@@ -83,6 +106,10 @@
             renderSpecialBooks(books);
 
             page++;
+        }
+
+        async function getUserProducts(){
+            return await fetch(`/user/products/${userId}`).then(res => res.json()).then(res => res.map(x => x.product_id));
         }
     </script>
 {% endblock %}

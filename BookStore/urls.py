@@ -15,15 +15,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from tenlong import views as tl_views
+from tenlong import views as tenlong_views
+from users import views as user_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', tl_views.index),
-    path('keywordResult', tl_views.keyword),
-    path('keywordBooks/<str:book_name>/<int:book_page>', tl_views.get_keyword_books),
-    path('special/<int:special_id>', tl_views.special),
-    path('publishers', tl_views.publishers),
-    path('publishers/<int:publisher_id>', tl_views.publisher),
-    path('book/<str:book_species>/<int:book_id>/<int:book_page>', tl_views.get_books)
+    path('', tenlong_views.index),
+    path('keywordResult', tenlong_views.keyword),
+    path('keywordBooks/<str:book_name>/<int:book_page>', tenlong_views.get_keyword_books),
+    path('special/<int:special_id>', tenlong_views.special),
+    path('publishers', tenlong_views.publishers),
+    path('publishers/<int:publisher_id>', tenlong_views.publisher),
+    path('book/<str:book_species>/<int:book_id>/<int:book_page>', tenlong_views.get_books),
+    path('user/login', user_views.login, name='login'),
+    path('user/logout', user_views.logout, name='logout'),
+    path('user/products/<int:user_id>', user_views.get_user_products),
+    path('user/add/<int:product_id>', user_views.add_products),
+    path('user/delete/<int:product_id>', user_views.delete_product)
 ]

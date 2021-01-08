@@ -1,4 +1,4 @@
-{% extends 'tenlong/layout.html' %}
+{% extends 'layout.html' %}
 
 {% block title %}
     搜尋書籍結果
@@ -14,6 +14,9 @@
         let page = 1;
         let keyword = '{{ keyword }}';
         let isMaxLow = false;
+        let isLogin = '{{ request.user.is_authenticated }}';
+
+        console.log(isLogin);
 
         window.addEventListener('scroll',() => {
             let curHeight = document.documentElement.scrollHeight - window.innerHeight;

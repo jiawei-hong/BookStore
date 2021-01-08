@@ -40,8 +40,14 @@ def get_keyword_books(request, book_name, book_page):
         try:
             book_link = book.find('a', class_='cover').get('href')
             book_img = book.find('a', class_='cover').find('img').get('src')
-            book_info = '/'.join([x.text for x in book.find('div', class_='book-data').find('ul', class_='item-info').find('li', class_='basic').find_all('span')])
-            book_status = '/'.join([x.text.strip() for x in book.find('div', class_='book-data').find('ul', class_='item-info').find('li', class_='pricing').find_all('span')])
+            book_info = '/'.join([x.text for x in
+                                  book.find('div', class_='book-data').find('ul', class_='item-info').find('li',
+                                                                                                           class_='basic').find_all(
+                                      'span')])
+            book_status = '/'.join([x.text.strip() for x in
+                                    book.find('div', class_='book-data').find('ul', class_='item-info').find('li',
+                                                                                                             class_='pricing').find_all(
+                                        'span')])
 
             books.append({
                 'link': f'https://www.tenlong.com.tw/{book_link}',
@@ -113,7 +119,8 @@ def get_books(request, book_species, book_id, book_page):
             'name': book_title.find('a').text,
             'img_link': book_ele.find('a', class_='cover').find('img').get('src'),
             'price': book_price[1 if len(book_price) > 1 else 0],
-            'link': 'https://www.tenlong.com.tw' + book_title.find('a').get('href')
+            'link': 'https://www.tenlong.com.tw' + book_title.find('a').get('href'),
+            'product_id': list(filter(None, book_title.find('a').get('href').replace('?', '/').split('/')))[1]
         })
 
     return HttpResponse(json.dumps(book_data))

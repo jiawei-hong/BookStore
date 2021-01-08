@@ -1,4 +1,4 @@
-{% extends 'tenlong/layout.html' %}
+{% extends 'layout.html' %}
 
 {% block title %}
     天瓏首頁
@@ -6,6 +6,10 @@
 
 {% block content %}
     <div class="text-center">
-        <h1>Use Python Doing TenLong Crawler</h1>
+        {% if request.user.is_authenticated %}
+            <h2>Welcome {{ request.user.username }} !!!</h2>
+        {% else %}
+            <h2>趕快登入吧~</h2>
+        {% endif %}
     </div>
-{% endblock %}ㄒ
+{% endblock %}

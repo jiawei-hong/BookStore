@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    會員登入
+{% endblock %}
+
+{% block content %}
+    <div class="form-group">
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">帳號</span>
+                </div>
+                <input type="text" name="username" class="form-control">
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">密碼</span>
+                </div>
+                <input type="password" name="password" class="form-control">
+            </div>
+
+            <div class="d-flex">
+                <input class="btn btn-primary w-50 mr-1" type="submit" value="登入">
+                <input class="btn btn-primary w-50" type="reset" value="重設">
+            </div>
+        </form>
+    </div>
+{% endblock %}
