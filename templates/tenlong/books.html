@@ -13,9 +13,11 @@
         let hasBooksMode = booksMode.indexOf(getBooksMode) !== -1;
         let id = null;
         let isMaxLow = false;
-        let userProducts = null;
-        let userId = '{{ request.user.id }}';
-        let isLogin = '{{ request.user.is_authenticated }}'.toLowerCase() === 'true';
+        let user = {
+            id: null,
+            products: [],
+            isLogin: '{{ request.user.is_authenticated }}'.toLowerCase() === 'true',
+        };
 
         window.addEventListener('scroll',() => {
             let curHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -38,7 +40,11 @@
                     id = '{{ keyword_id }}'
             }
 
-            userProducts = await getUserProducts();
+            if (user.isLogin){
+                user.id = '{{ request.user.id }}';
+                user.products = await getUserProducts();
+            }
+
             getAndRenderBooks();
         }
 
@@ -70,20 +76,25 @@
                 bookButton.innerText = '前往購買';
                 bookButton.href = book.link;
 
-                if(userProducts.indexOf(parseInt(book.product_id)) === -1){
-                    bookmarkButton.className = 'btn btn-primary bi bi-star ml-1';
-                }else{
+                let isExistProductId = user.products.indexOf(parseInt(book.product_id)) !== -1
+
+                if(isExistProductId){
                     bookmarkButton.className = 'btn btn-primary bi bi-star-fill ml-1';
+                }else{
+                    bookmarkButton.className = 'btn btn-primary bi bi-star ml-1';
                 }
 
                 bookmarkButton.addEventListener('click',async () => {
-                    let product_id = book.product_id
-
-                    if(userProducts.indexOf(parseInt(book.product_id)) === -1){
-                        await fetch(`/user/add/${product_id}`).then(res => res.text()).then(res => res);
-                    }else{
-                        await fetch(`/user/delete/${product_id}`).then(res => res.text()).then(res => res);
+                    if(!user.isLogin){
+                        alert('請先登入');
+                        return
                     }
+
+                    let product_id = book.product_id
+                    let execMode = isExistProductId ? 'delete' : 'add';
+                    let response = await fetch(`/user/${execMode}/${product_id}`).then(res => res.json()).then(res => res);
+
+                    alert(response.msg);
 
                     location.reload();
                 });
@@ -109,7 +120,7 @@
         }
 
         async function getUserProducts(){
-            return await fetch(`/user/products/${userId}`).then(res => res.json()).then(res => res.map(x => x.product_id));
+            return await fetch(`/user/products/${user.id}`).then(res => res.json()).then(res => res.map(x => x.product_id));
         }
     </script>
 {% endblock %}

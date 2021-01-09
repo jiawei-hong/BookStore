@@ -14,9 +14,6 @@
         let page = 1;
         let keyword = '{{ keyword }}';
         let isMaxLow = false;
-        let isLogin = '{{ request.user.is_authenticated }}';
-
-        console.log(isLogin);
 
         window.addEventListener('scroll',() => {
             let curHeight = document.documentElement.scrollHeight - window.innerHeight;

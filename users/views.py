@@ -37,7 +37,7 @@ def add_products(request, product_id):
     Books.objects.create(user_id=request.user, product_id=product_id)
 
     return HttpResponse(json.dumps({
-        'msg': 'Create Success'
+        'msg': '添加成功'
     }))
 
 
@@ -45,5 +45,5 @@ def delete_product(request, product_id):
     Books.objects.get(user_id=request.user, product_id=product_id).delete()
 
     return HttpResponse(json.dumps({
-        'msg': 'Delete Success'
+        'msg': '移除成功'
     }))

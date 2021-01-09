@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from bs4 import BeautifulSoup
+from django.forms.models import model_to_dict
+from users.models import Books
 import requests
 import json
 
@@ -8,8 +10,11 @@ import json
 # Create your views here.
 
 def index(request):
+    user_id = request.user.id
+
     return render(request, 'tenlong/index.html', {
         'navbar': get_navbar(),
+        'books_detail': get_books_detail(user_id)
     })
 
 
@@ -124,3 +129,22 @@ def get_books(request, book_species, book_id, book_page):
         })
 
     return HttpResponse(json.dumps(book_data))
+
+
+def get_books_detail(user_id):
+    products_url = [f'https://www.tenlong.com.tw/products/{data["product_id"]}' for data in
+                    [model_to_dict(data) for data in Books.objects.filter(user_id=user_id)]]
+    products = []
+
+    for url in products_url:
+        req_text = requests.get(url).text
+        products_main = BeautifulSoup(req_text, 'html.parser').find('div', class_='item-info')
+        products.append({
+            'img': products_main.find('div', class_='img-wrapper').find('a').find('picture').find('img').get('src'),
+            'detail': [
+                [x.find('span', class_='info-title').text.strip(), x.find('span', class_='info-content').text.strip()]
+                for x in products_main.find('ul', class_='item-sub-info').findAll('li')],
+            'buy_link': url
+        })
+
+    return products

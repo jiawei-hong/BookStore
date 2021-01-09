@@ -7,7 +7,23 @@
 {% block content %}
     <div class="text-center">
         {% if request.user.is_authenticated %}
-            <h2>Welcome {{ request.user.username }} !!!</h2>
+            <div class="card-columns">
+                {% for book in books_detail %}
+                    <div class="card" style="width: 18rem;">
+                        <img src="{{ book.img }}" alt="" class="card-img-top">
+
+                        <div class="card-body">
+                            {% for detail in book.detail %}
+                                <p class="card-text">
+                                    {{ detail|join:"" }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+                        <a href="{{ book.buy_link }}" target="_blank" class="btn btn-primary btn-block">前往購買</a>
+                    </div>
+                {% endfor %}
+            </div>
         {% else %}
             <h2>趕快登入吧~</h2>
         {% endif %}

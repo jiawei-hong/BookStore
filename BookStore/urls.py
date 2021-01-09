@@ -31,5 +31,5 @@ urlpatterns = [
     path('user/logout', user_views.logout, name='logout'),
     path('user/products/<int:user_id>', user_views.get_user_products),
     path('user/add/<int:product_id>', user_views.add_products),
-    path('user/delete/<int:product_id>', user_views.delete_product)
+    path('user/delete/<int:product_id>', user_views.delete_product),
 ]
