@@ -47,6 +47,14 @@
                 <li class="nav-item">
                     <a class="nav-link" href="https://www.instagram.com/explore/locations/688892799/" target="_blank">Instagram</a>
                 </li>
+                {% if request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'hot-book' %}" target="_blank">熱門書籍</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'information-book' %}" target="_blank">資訊書籍</a>
+                </li>                
+                {% endif %}
                 <li class="nav-item">
                     <form action="/keywordResult" method="POST">
                         {% csrf_token %}

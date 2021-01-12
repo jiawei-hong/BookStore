@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from tenlong import views as tenlong_views
 from users import views as user_views
+from crawler import views as cralwer_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,4 +33,6 @@ urlpatterns = [
     path('user/products/<int:user_id>', user_views.get_user_products),
     path('user/add/<int:product_id>', user_views.add_products),
     path('user/delete/<int:product_id>', user_views.delete_product),
+    path('hot-book/', cralwer_views.hot_book, name='hot-book'),
+    path('information/', cralwer_views.information_book, name='information-book'),    
 ]
