@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資訊類書籍</title>
+    <style>
+        #bg{
+            width:2000000%;
+            height:2000000%;
+            background:#000;
+            filter:alpha(opacity=50);
+            opacity:0.5;
+            position:absolute;
+            top:0;
+            left:0;
+            display: none;
+        }
+        .bookpost {
+            position: fixed;
+            overflow: scroll;
+            top: 100px;
+            left: 50%;
+            transform: translate(-325px, 0px);
+            width: 650px;
+            height: 600px;
+            padding: 10px;
+            border: 1px solid #888888;
+            background-color: #eeeeee;
+            box-shadow: 0px 0px 10px #000000;
+            display: none;
+            z-index: 3;
+            
+        }
+
+        .bookpost>.close {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            cursor: pointer;
+            border: 3px solid #888888;
+            background-color: #36a2fb;
+            box-shadow: 0px 0px 10px #000000;
+            z-index: 3;
+        }   
+        .bookimgurl {
+            border: 5px solid #888888;
+            /* border-width:3px; */
+            border-style:dashed;
+            border-radius:15px;
+            margin:5px 10px 15px 20px;
+            border-color:#FFAC55;
+            padding:10px;
+            cursor: pointer;
+            background-color:cyan;
+            opacity: 80;
+        }
+        img{
+            width: 350px;
+            height: 400px;
+            margin-right: 10px;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border-radius: 10px;
+        }
+        {
+
+        }
+    </style>
+    <script>
+        var bookpost, bg;
+        window.onload = function () {
+            bookpost = document.getElementsByClassName('bookpost');
+            bg = document.getElementById('bg');
+        };
+        function showbookpost(i) {
+            bookpost[i].style.display = 'block';
+            document.getElementById("bg").style.display= 'block';
+
+        };
+        function closebookpost(i) {
+            bookpost[i].style.display = 'none';
+            document.getElementById("bg").style.display= 'none';
+        };
+    </script>
+</head>
+
+<body>
+    <div id="bg"></div>
+    <div Align='center' >
+        <form style="margin:0px;display:inline;" name="back-page" action="" method="GET"> 
+            <input style="display: none;" id='back-up' type='number' name='back-up' value="1">
+            <input style="display: none;" id='bool-back' type='text' name='bool-back' value='True'>
+            <input style="display: none;" id='back_number' type='number' name='back_number' value={{ pageno }}>
+            <input style="display: none;" id='page_total' type='number' name='page_total' value={{ page_total }}>
+            <input type="submit" value="上一頁"></input>
+        </form>
+        總共{{ page_total }}頁，現在第{{ pageno }}頁
+        <form style="margin:0px;display:inline;" name="next-page" action="" method="GET"> 
+            <input style="display: none;" id='next' type='number' name='next' value="1">
+            <input style="display: none;" id='bool' type='text' name='bool' value='True'>
+            <input style="display: none;" id='page_total' type='number' name='page_total' value={{ page_total }}>
+            <input style="display: none;" id='next_number' type='number' name='next_number' value={{ pageno }}>
+            <input type="submit" value="下一頁"></input>
+        </form>
+    </div>
+    {% block content %}
+        {% for book_ID,value in book_ID_dic.items %}
+            <a ><img class='bookimgurl' name='{{book_ID}}' src={{value.book_img_url}}
+            onclick="showbookpost('{{ forloop.counter0 }}')"></a>
+            <div id='bookpost' class='bookpost' name='{{book_ID}}'>
+                <div onclick='closebookpost("{{ forloop.counter0 }}")' class='close' style="font-size: 34px;">返回</div>
+                <p Align="center"  >
+                    <img  src={{value.book_img_url}} with="600" heigh="400" >
+                </p>
+                <h2 align="center" style="font-weight: bolder;">標題</h2><br>
+                <h3 align="center" style="line-height:1.5">{{    value.TitleCache }}</h3><br>
+                <h2 align="center" style="font-weight: bolder;">簡介</h2><br>
+                <h3 align="center" style="line-height:1.5">{{ value.Description }}</h3><br>
+                <h3 align="center">作者：{{ value.Author }}</h3><br>
+                <h3 align="center">出版社：{{ value.PublisherName }}</h3><br>
+                <h3 align="center">總頁數：{{ value.TotalPage }}</h3><br>
+                <h3 align="center">上傳日期：{{ value.UpdateDate }}</h3><br>
+                <h3 align="center">書籍編號：{{ value.ISBN }}</h3><br>
+            </div>
+        {% endfor %}
+    {% endblock %}
+    
+    <!-- book_img ,TitleCache ,Author ,PublisherName,TotalPage ,UpdateDate ,Description ,ISBN -->
+</body>
+
+</html>
